@@ -12,7 +12,7 @@ Evolved from "Joe Kuan" script --> https://joekuan.wordpress.com/2012/10/10/usin
 To download a single fiddle from its url, just use 'downloadFiddle.js' like this:
 
 ```
-phantomjs downloadFiddle.js <url> [<output file>]
+  phantomjs downloadFiddle.js <url> [<output file>]
 ```
 
 To download all scripts of a determinated 'user' from jsFiddle.net, just use "downloadAllFiddles.js" in the next way:
