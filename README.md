@@ -11,12 +11,12 @@ phantomjs downloadFiddle.js <url> [output file]
 
 To download all scripts of a determinated 'user' from jsFiddle.net, just use "downloadAllFiddles.js" in the next way:
 ```
-  phantomjs downloadAllFiddles.js <user>
+  phantomjs downloadAllFiddles.js <user> [<output-folder>]
 ```
 It'll download all backups in the currrent directory, the jsFiddles scripts will be named as:
 
 ```
-  <id-fiddle>.html
+  [<output-folder>/]<id-fiddle>.html
 ```
 
 
