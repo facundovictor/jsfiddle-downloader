@@ -1,0 +1,35 @@
+{
+  "name": "jsFiddleDownloader",
+  "version": "0.0.1",
+  "description": "A downloader tool for jsFiddle's",
+  "main": "index.js",
+  "bin": {
+    "fiddle-downloader": "bin/fiddle-downloader.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/facundovictor/jsFiddleDownloader"
+  },
+  "keywords": [
+    "jsfiddle",
+    "js",
+    "javascript",
+    "downloader",
+    "node",
+    "nodejs",
+    "phantomjs"
+  ],
+  "author": "Facundo Victor",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/facundovictor/jsFiddleDownloader/issues"
+  },
+  "dependencies": {
+    "commander": "~2.9.0",
+    "chalk": "~1.1.3",
+    "bluebird": "~3.3.5"
+  }
+}
