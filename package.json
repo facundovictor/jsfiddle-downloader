@@ -2,7 +2,7 @@
   "name": "jsFiddleDownloader",
   "version": "0.0.1",
   "description": "A downloader tool for jsFiddle's",
-  "main": "index.js",
+  "main": "bin/index.js",
   "bin": {
     "fiddle-downloader": "bin/fiddle-downloader.js"
   },
