@@ -120,11 +120,10 @@ function recoverSingleFiddle(url, output){
 
 
 (function main (){
-	output = commander.output || 'output';
   if (commander.user){
 		// recoverAllFiddles(commander.user);
 	} else if (commander.link) {
-		recoverSingleFiddle(commander.link, output);
+		recoverSingleFiddle(commander.link, commander.output || 'output.html');
 	} else {
 		commander.help();
 	}
