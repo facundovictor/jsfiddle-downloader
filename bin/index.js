@@ -1,6 +1,8 @@
 #!/usr/bin/env node
-
-
+//#############################################################################
+// @author: Facundo Victor
+// @licence: MIT
+// @description: Script that allows to do a backup of your jsFiddles to disk.
 //#############################################################################
 
 var commander = require('commander');
@@ -10,6 +12,7 @@ var Promise = require('bluebird');
 var fs = require('fs');
 Promise.promisifyAll(fs);
 
+//#############################################################################
 
 commander
 	.version('0.0.1')
@@ -19,13 +22,7 @@ commander
 	.option('-v, --verbose', 'Verbose output')
 	.parse(process.argv);
 
-
 //#############################################################################
-
-
-
-//#############################################################################
-
 
 function logIfVerbose(str, error){
 	if (commander.verbose){
@@ -41,6 +38,7 @@ function printError(str){
 	console.error(chalk.red(str));
 }
 
+//#############################################################################
 
 function makeHttpRequest(user, fiddle_code){
 	return new Promise(function (resolve, reject){
@@ -118,6 +116,7 @@ function recoverSingleFiddle(url, output){
 		});
 }
 
+//#############################################################################
 
 (function main (){
   if (commander.user){
