@@ -23,6 +23,7 @@ commander
 	.parse(process.argv);
 
 //#############################################################################
+// Print helpers
 
 function logIfVerbose(str, error){
 	if (commander.verbose){
@@ -38,7 +39,61 @@ function printError(str){
 	console.error(chalk.red(str));
 }
 
+function mkdirp (path) {
+	Promise.bind(this)
+		.then( function(){
+			fs.mkdir(path)
+		}).then( function(){
+			logIfVerbose('Dir '+path+' created.');
+		}).catch( function(error){
+			if ( error.code != 'EEXIST' ) throw error;
+		});
+}
+
 //#############################################################################
+// HTTPS Requests
+
+function getListOfFiddles(user){
+	return new Promise(function (resolve, reject){
+		var complete_path = "/api/user/"+user+
+     "/demo/list.json?callback=Api&sort=framework&start=0&limit=50000";
+
+		var options = {
+			hostname: 'jsfiddle.net',
+			port: 443,
+			method: 'GET',
+			path: complete_path
+		};
+
+		var request = https.request(options, function (res){
+			res.setEncoding('utf8');
+			body = '';
+			res.on('data', function (chunk) {
+				logIfVerbose('Retreive chunk');
+				body += chunk;
+			});
+			res.on('end', function () {
+				logIfVerbose('End request');
+				var jsonSource = body.substring(4,body.length - 3);
+				var data = JSON.parse(jsonSource);
+				if (data.status == 'ok'){
+					logIfVerbose('Parsed response..');
+					resolve(data.list);
+				} else {
+					logIfVerbose('JSFiddle API error..',true);
+					reject(data);
+				}
+			});
+		});
+
+		request.on('error', function(error){
+			logIfVerbose(error, true);
+			reject(error);
+		});
+		request.write('');
+		request.end();
+	});
+}
 
 function makeHttpRequest(user, fiddle_code){
 	return new Promise(function (resolve, reject){
@@ -75,6 +130,7 @@ function makeHttpRequest(user, fiddle_code){
 	});
 }
 
+//#############################################################################
 
 function loadDataFromUrl(url){
 	return new Promise(function (resolve, reject){
