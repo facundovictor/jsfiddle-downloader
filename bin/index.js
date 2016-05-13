@@ -158,11 +158,12 @@ function loadDataFromUrl(url){
 }
 
 function recoverSingleFiddle(url, output){
-	Promise
-		.bind(this)
+	Promise.bind(this)
 		.then(function(){
 			return loadDataFromUrl(url);
 		}).then( function(data){
+			output = output || global.cwd+'/'+data.fiddle_code+'.html'
+			logIfVerbose('Output file = '+output);
 			return makeHttpRequest(data.user, data.fiddle_code)
 		}).then( function(fiddle) {
 			fs.writeFile(output, body)
@@ -172,13 +173,44 @@ function recoverSingleFiddle(url, output){
 		});
 }
 
+function saveFiddles(list, output){
+	global.cwd = process.cwd();
+	amount = list.length;
+	promises = [];
+	for (var i=0; i < amount; i++) {
+		var url = list[i].url.substring(2, list[i].url.length);
+		logIfVerbose('Processing fiddle = '+url);
+		promises.push(recoverSingleFiddle(url));
+	}
+	return Promise.all(promises);
+}
+
+function recoverAllFiddles(user, output){
+	var current_dir = process.cwd();
+	Promise.bind(this)
+		.then(function(){
+			mkdirp(output);
+		}).then(function(){
+			return getListOfFiddles(user);
+		}).then(function(list){
+			process.chdir(output);
+			return saveFiddles(list, output);
+		}).then(function(result){
+			console.log(chalk.green('Download terminated'));
+		}).catch( function (error) {
+			printError(error);
+			process.exit(1);
+		});
+}
+
 //#############################################################################
 
 (function main (){
+	global.cwd = process.cwd();
   if (commander.user){
-		// recoverAllFiddles(commander.user);
+		recoverAllFiddles(commander.user, commander.output || 'output_dir');
 	} else if (commander.link) {
-		recoverSingleFiddle(commander.link, commander.output || 'output.html');
+		recoverSingleFiddle(commander.link, commander.output);
 	} else {
 		commander.help();
 	}
