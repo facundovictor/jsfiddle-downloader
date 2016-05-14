@@ -9,7 +9,7 @@ var commander = require('commander');
 var chalk = require('chalk');
 var https = require('https');
 var Promise = require('bluebird');
-var htmlparser = require('htmlparser');
+var cheerio = require('cheerio');
 var fs = require('fs');
 Promise.promisifyAll(fs);
 
@@ -133,6 +133,10 @@ function makeHttpRequest(user, fiddle_code){
 
 //#############################################################################
 
+function insertDescription(html_raw, fiddle_data){
+	
+}
+
 function loadDataFromUrl(url){
 	return new Promise(function (resolve, reject){
 		if (typeof url == 'string' && (url.indexOf('/') > 0)){
@@ -158,7 +162,7 @@ function loadDataFromUrl(url){
 	});
 }
 
-function recoverSingleFiddle(url, output){
+function recoverSingleFiddle(url, output, fiddle_data){
 	Promise.bind(this)
 		.then(function(){
 			return loadDataFromUrl(url);
@@ -167,7 +171,7 @@ function recoverSingleFiddle(url, output){
 			logIfVerbose('Output file = '+output);
 			return makeHttpRequest(data.user, data.fiddle_code)
 		}).then( function(fiddle) {
-			fs.writeFile(output, body)
+			fs.writeFile(output, fiddle)
 		}).catch( function (error) {
 			printError(error);
 			process.exit(1);
@@ -176,12 +180,13 @@ function recoverSingleFiddle(url, output){
 
 function saveFiddles(list, output){
 	global.cwd = process.cwd();
-	amount = list.length;
-	promises = [];
+	var amount = list.length;
+	var promises = [];
 	for (var i=0; i < amount; i++) {
-		var url = list[i].url.substring(2, list[i].url.length);
+		var fiddle = list[i];
+		var url = fiddle.url.substring(2, fiddle.url.length);
 		logIfVerbose('Processing fiddle = '+url);
-		promises.push(recoverSingleFiddle(url));
+		promises.push(recoverSingleFiddle(url, null, fiddle));
 	}
 	return Promise.all(promises);
 }
