@@ -9,6 +9,7 @@ var commander = require('commander');
 var chalk = require('chalk');
 var https = require('https');
 var Promise = require('bluebird');
+var htmlparser = require('htmlparser');
 var fs = require('fs');
 Promise.promisifyAll(fs);
 
