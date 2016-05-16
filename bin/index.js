@@ -20,6 +20,7 @@ commander
 	.option('-u, --user <user>', 'Save all the users fiddles')
 	.option('-l, --link <url>', 'Url of the fiddle to save')
 	.option('-o, --output <path>', 'Target path to download the data')
+	.option('-c, --compressed', 'Compress the spaces of the HTML output')
 	.option('-v, --verbose', 'Verbose output')
 	.parse(process.argv);
 
@@ -134,7 +135,28 @@ function makeHttpRequest(user, fiddle_code){
 //#############################################################################
 
 function insertDescription(html_raw, fiddle_data){
-	
+	return new Promise(function (resolve, reject){
+		if (html_raw.length > 0){
+			config = {
+				normalizeWhitespace: commander.compressed
+			};
+			$ = cheerio.load(html_raw, config);
+
+			if (fiddle_data){
+				$('head').append("<!-- Title: "+fiddle_data.title+" -->");
+				$('head').append("<!-- Author: "+fiddle_data.author+" -->");
+				$('head').append("<!-- Description: "+fiddle_data.description+" -->");
+				$('head').append("<!-- Framework: "+fiddle_data.framework+" -->");
+				$('head').append("<!-- Version: "+fiddle_data.veresion+" -->");
+				$('head').append("<!-- Latest_version: "+fiddle_data.latest_version+" -->");
+				$('head').append("<!-- Url: "+fiddle_data.url+" -->");
+				$('head').append("<!-- Created date: "+fiddle_data.created+" -->");
+			}
+			resolve($.html());
+		} else {
+			reject(new Error('Empty html'));
+		}
+	});
 }
 
 function loadDataFromUrl(url){
@@ -170,6 +192,8 @@ function recoverSingleFiddle(url, output, fiddle_data){
 			output = output || global.cwd+'/'+data.fiddle_code+'.html'
 			logIfVerbose('Output file = '+output);
 			return makeHttpRequest(data.user, data.fiddle_code)
+		}).then( function(fiddle) {
+			return insertDescription(fiddle, fiddle_data);
 		}).then( function(fiddle) {
 			fs.writeFile(output, fiddle)
 		}).catch( function (error) {
