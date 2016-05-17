@@ -1,4 +1,4 @@
-# jsFiddleDownloader
+# jsfiddle-downloader
 
 Download fiddles from jsFiddle.net, just using a NodeJS script and save it as a single HTML file.
 Evolved from "Joe Kuan" script --> https://joekuan.wordpress.com/2012/10/10/using-phantomjs-to-download-jsfiddle-net-code/
