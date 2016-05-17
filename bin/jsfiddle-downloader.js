@@ -10,8 +10,8 @@ var chalk = require('chalk');
 var https = require('https');
 var Promise = require('bluebird');
 var cheerio = require('cheerio');
-var fs = require('fs');
-Promise.promisifyAll(fs);
+var url_parser = require('url');
+var fs = Promise.promisifyAll(require("fs"));
 
 //#############################################################################
 
@@ -21,6 +21,7 @@ commander
 	.option('-l, --link <url>', 'Url of the fiddle to save')
 	.option('-o, --output <path>', 'Target path to download the data')
 	.option('-c, --compressed', 'Compress the spaces of the HTML output')
+	.option('-i, --identifier <fiddle_id>', 'Identifier of the fiddle to save')
 	.option('-v, --verbose', 'Verbose output')
 	.parse(process.argv);
 
@@ -41,15 +42,32 @@ function printError(str){
 	console.error(chalk.red(str));
 }
 
+//#############################################################################
+
 function mkdirp (path) {
 	Promise.bind(this)
 		.then( function(){
-			fs.mkdir(path)
+			return Promise.promisify(fs.mkdir)(path);
 		}).then( function(){
 			logIfVerbose('Dir '+path+' created.');
 		}).catch( function(error){
 			if ( error.code != 'EEXIST' ) throw error;
 		});
+}
+
+function isCommand(str){
+	return /^show$|^embed$/.test(str);
+}
+
+function getCompletePath(fiddle_code, user){
+	var complete_path = '/';
+	if (user != null){
+		complete_path += user +'/';
+	}
+	if (fiddle_code != null){
+		complete_path += fiddle_code +'/show/light/';
+	}
+	return complete_path;
 }
 
 //#############################################################################
@@ -76,14 +94,20 @@ function getListOfFiddles(user){
 			});
 			res.on('end', function () {
 				logIfVerbose('End request');
-				var jsonSource = body.substring(4,body.length - 3);
-				var data = JSON.parse(jsonSource);
-				if (data.status == 'ok'){
-					logIfVerbose('Parsed response..');
-					resolve(data.list);
+				if ((body.length > 3) && (body.substring(0,3) == 'Api')){
+					var jsonSource = body.substring(4,body.length - 3);
+					var data = JSON.parse(jsonSource);
+					if (data.status == 'ok'){
+						logIfVerbose('Parsed response..');
+						resolve(data.list);
+					} else {
+						logIfVerbose('JSFiddle API error..',true);
+						reject(data);
+					}
 				} else {
 					logIfVerbose('JSFiddle API error..',true);
-					reject(data);
+					console.log('Please verify the user and try again!');
+					reject(new Error('JSFiddle API error..'));
 				}
 			});
 		});
@@ -97,9 +121,9 @@ function getListOfFiddles(user){
 	});
 }
 
-function makeHttpRequest(user, fiddle_code){
+function makeHttpRequest(fiddle_code, user){
 	return new Promise(function (resolve, reject){
-		var complete_path = '/'+user+'/'+fiddle_code+'/show/light/';
+		var complete_path = getCompletePath(fiddle_code, user);
 		var options = {
 			hostname: 'jsfiddle.net',
 			port: 443,
@@ -163,21 +187,36 @@ function loadDataFromUrl(url){
 	return new Promise(function (resolve, reject){
 		if (typeof url == 'string' && (url.indexOf('/') > 0)){
 			var data = {};
-			url_parts = url.split('/');
-			if (url_parts.length >= 5 && url_parts[0] == 'https:'){
-				data.user = url_parts[3];
-				data.fiddle_code = url_parts[4];
-				logIfVerbose(	'Detected long url..')
-			} else if (url_parts.length >= 3){
-				data.user = url_parts[1];
-				data.fiddle_code = url_parts[2];
-				logIfVerbose(	'Detected short url..')
-			} else {
-				printError('Invalid url... ');
+			url_parts = url_parser.parse(url);
+			path_parts = url_parts.path.split('/');
+
+			if (path_parts.length > 1){
+				amount_of_parts = path_parts.length - 1; // Minus the first slash
+
+				if (amount_of_parts == 1){
+					// Only one argument (fiddle_id)
+					data.fiddle_code = path_parts[1];
+					logIfVerbose(	'Detected single fiddle url..')
+				} else {
+					// Could bee user/fiddle_id or fiddle_id/command
+					if (isCommand(path_parts[2])){
+						data.fiddle_code = path_parts[1];
+						logIfVerbose(	'Detected fiddle and command url..')
+					} else {
+						data.user = path_parts[1];
+						data.fiddle_code = path_parts[2];
+						logIfVerbose(	'Detected user and fiddle url..')
+					}
+				}
+				process.stdout.write('Detected fiddle code = '+chalk.green(data.fiddle_code));
+				if (data.user != null){
+					process.stdout.write(', from user = '+chalk.green(data.user));
+				}
+				process.stdout.write('\n');
+				resolve(data);
+			}else{
 				reject(new Error('Invalid url'));
 			}
-			console.log('user = '+chalk.green(data.user)+', code = '+chalk.green(data.fiddle_code));
-			resolve(data);
 		}else{
 			reject(new Error('Invalid url'));
 		}
@@ -190,12 +229,38 @@ function recoverSingleFiddle(url, output, fiddle_data){
 			return loadDataFromUrl(url);
 		}).then( function(data){
 			output = output || global.cwd+'/'+data.fiddle_code+'.html'
-			logIfVerbose('Output file = '+output);
-			return makeHttpRequest(data.user, data.fiddle_code)
+			return makeHttpRequest(data.fiddle_code, data.user);
 		}).then( function(fiddle) {
 			return insertDescription(fiddle, fiddle_data);
 		}).then( function(fiddle) {
-			fs.writeFile(output, fiddle)
+			console.log('Output file = '+output);
+			fs.writeFile(output, fiddle);
+		}).catch( function (error) {
+			printError(error);
+			process.exit(1);
+		});
+}
+
+function getValidCode(code){
+	return new Promise(function (resolve, reject){
+		if (/^[a-zA-Z0-9_]*$/.test(code)){
+			resolve(code);
+		} else {
+			reject(code);
+		}		
+	});
+}
+
+function recoverSingleFiddleById(fiddle_code, output){
+	Promise.bind(this)
+		.then(function(){
+			return getValidCode(fiddle_code);
+		}).then( function(code){
+			return makeHttpRequest(code);
+		}).then( function(fiddle) {
+			output = output || global.cwd+'/'+fiddle_code+'.html'
+			console.log('Output file = '+output);
+			fs.writeFile(output, fiddle);
 		}).catch( function (error) {
 			printError(error);
 			process.exit(1);
@@ -239,8 +304,10 @@ function recoverAllFiddles(user, output){
 	global.cwd = process.cwd();
   if (commander.user){
 		recoverAllFiddles(commander.user, commander.output || 'output_dir');
-	} else if (commander.link) {
+	} else if (commander.link){
 		recoverSingleFiddle(commander.link, commander.output);
+	} else if (commander.identifier){
+		recoverSingleFiddleById(commander.identifier, commander.output);
 	} else {
 		commander.help();
 	}
