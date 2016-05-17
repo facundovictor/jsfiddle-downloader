@@ -28,12 +28,15 @@ To download a single fiddle from its url:
 
 ```
   jsfiddle-downloader -l <url> [-o <output file>]
+  jsfiddle-downloader -l jsfiddle.net/<user>/<fiddle-id>
+  jsfiddle-downloader -l https://jsfiddle.net/<fiddle-id>
+  jsfiddle-downloader -l https://jsfiddle.net/<user>/<fiddle-id>/show/ -o myfiddle.html
 ```
 
 To download all scripts of a determinated 'user' from jsFiddle.net:
 
 ```
-  jsfiddle-downloader -l <url> [-o <output file>]
+  jsfiddle-downloader -u <user> [-o <output file>]
 ```
 
 It'll download all backups in the currrent directory, the jsFiddles scripts will be named as:
