@@ -15,13 +15,21 @@ Download fiddles from jsFiddle.net, just using a NodeJS script and save it as a 
 
 	Options:
 
-	-h, --help           output usage information
-	-V, --version        output the version number
-	-u, --user <user>    Save all the users fiddles
-	-l, --link <url>     Url of the fiddle to save
-	-o, --output <path>  Target path to download the data
-	-c, --compressed     Compress the spaces of the HTML output
-	-v, --verbose        Verbose output
+	-h, --help                    output usage information
+	-V, --version                 output the version number
+	-u, --user <user>             Save all the users fiddles
+	-l, --link <url>              Url of the fiddle to save
+	-o, --output <path>           Target path to download the data
+	-c, --compressed              Compress the spaces of the HTML output
+	-i, --identifier <fiddle_id>  Identifier of the fiddle to save
+	-v, --verbose                 Verbose output
+
+```
+
+To download a single fiddle from its id:
+
+```
+  jsfiddle-downloader -i <fiddle-id> [-o <output file>]
 ```
 
 To download a single fiddle from its url:
