@@ -19,8 +19,7 @@
     "javascript",
     "downloader",
     "node",
-    "nodejs",
-    "phantomjs"
+    "nodejs"
   ],
   "author": "Facundo Victor <facundovt@gmail.com>",
   "license": "MIT",
