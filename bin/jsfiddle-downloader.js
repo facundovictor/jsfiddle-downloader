@@ -21,6 +21,7 @@ commander
 	.option('-l, --link <url>', 'Url of the fiddle to save')
 	.option('-o, --output <path>', 'Target path to download the data')
 	.option('-c, --compressed', 'Compress the spaces of the HTML output')
+	.option('-i, --identifier <fiddle_id>', 'Identifier of the fiddle to save')
 	.option('-v, --verbose', 'Verbose output')
 	.parse(process.argv);
 
@@ -58,6 +59,17 @@ function isCommand(str){
 	return /^show$|^embed$/.test(str);
 }
 
+function getCompletePath(fiddle_code, user){
+	var complete_path = '/';
+	if (user != null){
+		complete_path += user +'/';
+	}
+	if (fiddle_code != null){
+		complete_path += fiddle_code +'/show/light/';
+	}
+	return complete_path;
+}
+
 //#############################################################################
 // HTTPS Requests
 
@@ -82,14 +94,20 @@ function getListOfFiddles(user){
 			});
 			res.on('end', function () {
 				logIfVerbose('End request');
-				var jsonSource = body.substring(4,body.length - 3);
-				var data = JSON.parse(jsonSource);
-				if (data.status == 'ok'){
-					logIfVerbose('Parsed response..');
-					resolve(data.list);
+				if ((body.length > 3) && (body.substring(0,3) == 'Api')){
+					var jsonSource = body.substring(4,body.length - 3);
+					var data = JSON.parse(jsonSource);
+					if (data.status == 'ok'){
+						logIfVerbose('Parsed response..');
+						resolve(data.list);
+					} else {
+						logIfVerbose('JSFiddle API error..',true);
+						reject(data);
+					}
 				} else {
 					logIfVerbose('JSFiddle API error..',true);
-					reject(data);
+					console.log('Please verify the user and try again!');
+					reject(new Error('JSFiddle API error..'));
 				}
 			});
 		});
@@ -101,17 +119,6 @@ function getListOfFiddles(user){
 		request.write('');
 		request.end();
 	});
-}
-
-function getCompletePath(fiddle_code, user){
-	var complete_path = '/';
-	if (user != null){
-		complete_path += user +'/';
-	}
-	if (fiddle_code != null){
-		complete_path += fiddle_code +'/show/light/';
-	}
-	return complete_path;
 }
 
 function makeHttpRequest(fiddle_code, user){
@@ -222,11 +229,37 @@ function recoverSingleFiddle(url, output, fiddle_data){
 			return loadDataFromUrl(url);
 		}).then( function(data){
 			output = output || global.cwd+'/'+data.fiddle_code+'.html'
-			logIfVerbose('Output file = '+output);
 			return makeHttpRequest(data.fiddle_code, data.user);
 		}).then( function(fiddle) {
 			return insertDescription(fiddle, fiddle_data);
 		}).then( function(fiddle) {
+			console.log('Output file = '+output);
+			fs.writeFile(output, fiddle);
+		}).catch( function (error) {
+			printError(error);
+			process.exit(1);
+		});
+}
+
+function getValidCode(code){
+	return new Promise(function (resolve, reject){
+		if (/^[a-zA-Z0-9_]*$/.test(code)){
+			resolve(code);
+		} else {
+			reject(code);
+		}		
+	});
+}
+
+function recoverSingleFiddleById(fiddle_code, output){
+	Promise.bind(this)
+		.then(function(){
+			return getValidCode(fiddle_code);
+		}).then( function(code){
+			return makeHttpRequest(code);
+		}).then( function(fiddle) {
+			output = output || global.cwd+'/'+fiddle_code+'.html'
+			console.log('Output file = '+output);
 			fs.writeFile(output, fiddle);
 		}).catch( function (error) {
 			printError(error);
@@ -271,8 +304,10 @@ function recoverAllFiddles(user, output){
 	global.cwd = process.cwd();
   if (commander.user){
 		recoverAllFiddles(commander.user, commander.output || 'output_dir');
-	} else if (commander.link) {
+	} else if (commander.link){
 		recoverSingleFiddle(commander.link, commander.output);
+	} else if (commander.identifier){
+		recoverSingleFiddleById(commander.identifier, commander.output);
 	} else {
 		commander.help();
 	}
