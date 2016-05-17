@@ -11,8 +11,7 @@ var https = require('https');
 var Promise = require('bluebird');
 var cheerio = require('cheerio');
 var url_parser = require('url');
-var fs = require('fs');
-Promise.promisifyAll(fs);
+var fs = Promise.promisifyAll(require("fs"));
 
 //#############################################################################
 
@@ -47,7 +46,7 @@ function printError(str){
 function mkdirp (path) {
 	Promise.bind(this)
 		.then( function(){
-			fs.mkdir(path)
+			return Promise.promisify(fs.mkdir)(path);
 		}).then( function(){
 			logIfVerbose('Dir '+path+' created.');
 		}).catch( function(error){
