@@ -4,14 +4,14 @@
   "description": "A downloader tool for jsFiddle's",
   "main": "bin/index.js",
   "bin": {
-    "fiddle-downloader": "bin/fiddle-downloader.js"
+    "jsfiddle-downloader": "bin/jsfiddle-downloader.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/facundovictor/jsFiddleDownloader"
+    "url": "https://github.com/facundovictor/jsfiddle-downloader"
   },
   "keywords": [
     "jsfiddle",
@@ -22,10 +22,10 @@
     "nodejs",
     "phantomjs"
   ],
-  "author": "Facundo Victor",
+  "author": "Facundo Victor <facundovt@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/facundovictor/jsFiddleDownloader/issues"
+    "url": "https://github.com/facundovictor/jsfiddle-downloader/issues"
   },
   "dependencies": {
     "commander": "~2.9.0",

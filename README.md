@@ -6,14 +6,13 @@ Evolved from "Joe Kuan" script --> https://joekuan.wordpress.com/2012/10/10/usin
 **Installation**:
 
 ```
-	git clone https://github.com/facundovictor/jsFiddleDownloader
-	npm install
+	npm install jsfiddle-downloader -g
 ```
 
 **How to use it**:
 
 ```
-	Usage: node bin/fiddle-downloader.js [options]
+	Usage: node jsfiddle-downloader [options]
 
 	Options:
 
@@ -29,13 +28,13 @@ Evolved from "Joe Kuan" script --> https://joekuan.wordpress.com/2012/10/10/usin
 To download a single fiddle from its url:
 
 ```
-  node bin/fiddle-downloader.js -l <url> [-o <output file>]
+  jsfiddle-downloader -l <url> [-o <output file>]
 ```
 
 To download all scripts of a determinated 'user' from jsFiddle.net:
 
 ```
-  phantomjs downloadAllFiddles.js -u <user> [-o <output-folder>]
+  jsfiddle-downloader -l <url> [-o <output file>]
 ```
 
 It'll download all backups in the currrent directory, the jsFiddles scripts will be named as:
