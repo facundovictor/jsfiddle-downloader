@@ -3,6 +3,8 @@
 
 Download fiddles from jsFiddle.net, just using a NodeJS script and save it as a single HTML file.
 
+[![NPM](https://nodei.co/npm/jsfiddle-downloader.png?compact=true)]
+
 **Installation**:
 
 ```
