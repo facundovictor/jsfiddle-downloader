@@ -1,5 +1,5 @@
 # jsfiddle-downloader
-[![npm version](https://badge.fury.io/js/jsfiddle-downloader.svg)](https://badge.fury.io/js/jsfiddle-downloader) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/facundovictor/jsfiddle-downloader/master/LICENSE)
+[![npm version](https://badge.fury.io/js/jsfiddle-downloader.svg)](https://badge.fury.io/js/jsfiddle-downloader) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/facundovictor/jsfiddle-downloader/master/LICENSE) [![Total Downloads](https://img.shields.io/npm/dt/jsfiddle-downloader.svg)](https://npm-stat.com/charts.html?package=jsfiddle-downloader)
 
 Download fiddles from jsFiddle.net, just using a NodeJS script and save it as a single HTML file.
 
