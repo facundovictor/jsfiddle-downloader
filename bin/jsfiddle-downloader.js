@@ -203,9 +203,15 @@ function loadDataFromUrl(url){
 						data.fiddle_code = path_parts[1];
 						logIfVerbose(	'Detected fiddle and command url..')
 					} else {
-						data.user = path_parts[1];
-						data.fiddle_code = path_parts[2];
-						logIfVerbose(	'Detected user and fiddle url..')
+						// The user may not be present on the url
+						if (amount_of_parts === 2) {
+							data.fiddle_code = path_parts[1];
+							logIfVerbose(	'Detected fiddle url..')
+						} else {
+							data.user = path_parts[1];
+							data.fiddle_code = path_parts[2];
+							logIfVerbose(	'Detected user and fiddle url..')
+						}
 					}
 				}
 				process.stdout.write('Detected fiddle code = '+chalk.green(data.fiddle_code));
