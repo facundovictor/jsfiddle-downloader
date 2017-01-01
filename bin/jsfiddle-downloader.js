@@ -86,8 +86,8 @@ function getListOfFiddles(user){
 		};
 
 		var request = https.request(options, function (res){
+			var body = '';
 			res.setEncoding('utf8');
-			body = '';
 			res.on('data', function (chunk) {
 				logIfVerbose('Retreive chunk');
 				body += chunk;
@@ -135,8 +135,8 @@ function makeHttpRequest(fiddle_code, user){
 		};
 
 		var request = https.request(options, function (res){
+			var body = '';
 			res.setEncoding('utf8');
-			body = '';
 			res.on('data', function (chunk) {
 				logIfVerbose('Retreive chunk');
 				body += chunk;
@@ -161,7 +161,7 @@ function makeHttpRequest(fiddle_code, user){
 function insertDescription(html_raw, fiddle_data){
 	return new Promise(function (resolve, reject){
 		if (html_raw.length > 0){
-			config = {
+			var config = {
 				normalizeWhitespace: commander.compressed
 			};
 			$ = cheerio.load(html_raw, config);
@@ -187,8 +187,8 @@ function loadDataFromUrl(url){
 	return new Promise(function (resolve, reject){
 		if (typeof url == 'string' && (url.indexOf('/') > 0)){
 			var data = {};
-			url_parts = url_parser.parse(url);
-			path_parts = url_parts.path.split('/');
+			var url_parts = url_parser.parse(url);
+			var path_parts = url_parts.path.split('/');
 
 			if (path_parts.length > 1){
 				amount_of_parts = path_parts.length - 1; // Minus the first slash
