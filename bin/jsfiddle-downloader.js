@@ -94,10 +94,10 @@ function getListOfFiddles(user){
 			});
 			res.on('end', function () {
 				logIfVerbose('End request');
-				if ((body.length > 3) && (body.substring(0,3) == 'Api')){
+				if ((body.length > 3) && (body.substring(0,3) === 'Api')){
 					var jsonSource = body.substring(4,body.length - 3);
 					var data = JSON.parse(jsonSource);
-					if (data.status == 'ok'){
+					if (data.status === 'ok'){
 						logIfVerbose('Parsed response..');
 						resolve(data.list);
 					} else {
@@ -185,7 +185,7 @@ function insertDescription(html_raw, fiddle_data){
 
 function loadDataFromUrl(url){
 	return new Promise(function (resolve, reject){
-		if (typeof url == 'string' && (url.indexOf('/') > 0)){
+		if (typeof url === 'string' && (url.indexOf('/') > 0)){
 			var data = {};
 			var url_parts = url_parser.parse(url);
 			var path_parts = url_parts.path.split('/');
@@ -193,7 +193,7 @@ function loadDataFromUrl(url){
 			if (path_parts.length > 1){
 				amount_of_parts = path_parts.length - 1; // Minus the first slash
 
-				if (amount_of_parts == 1){
+				if (amount_of_parts === 1){
 					// Only one argument (fiddle_id)
 					data.fiddle_code = path_parts[1];
 					logIfVerbose(	'Detected single fiddle url..')
