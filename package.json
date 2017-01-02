@@ -1,6 +1,6 @@
 {
   "name": "jsfiddle-downloader",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A downloader tool for jsFiddle's",
   "main": "bin/index.js",
   "bin": {
