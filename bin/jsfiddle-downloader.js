@@ -11,7 +11,7 @@ var https = require('https');
 var Promise = require('bluebird');
 var cheerio = require('cheerio');
 var url_parser = require('url');
-var fs = Promise.promisifyAll(require("fs"));
+var fs = require("fs");
 
 //#############################################################################
 
@@ -51,7 +51,20 @@ function mkdirp (path) {
         }).then( function(){
             logIfVerbose('Dir '+path+' created.');
         }).catch( function(error){
-            if ( error.code != 'EEXIST' ) throw error;
+            // EEXIST: Dir already exists
+            if ( error.code !== 'EEXIST' ) throw error;
+        });
+}
+
+function writeFile(file_path, data) {
+    Promise.bind(this)
+        .then( function(){
+            return Promise.promisify(fs.writeFile)(file_path, data);
+        }).then( function(){
+            logIfVerbose('File '+file_path+' created.');
+        }).catch( function(error){
+            // EEXIST: File already exists
+            if ( error.code !== 'EEXIST' ) throw error;
         });
 }
 
@@ -240,7 +253,7 @@ function recoverSingleFiddle(url, output, fiddle_data){
             return insertDescription(fiddle, fiddle_data);
         }).then( function(fiddle) {
             console.log('Output file = '+output);
-            fs.writeFile(output, fiddle);
+            writeFile(output, fiddle);
         }).catch( function (error) {
             printError(error);
             process.exit(1);
@@ -266,7 +279,7 @@ function recoverSingleFiddleById(fiddle_code, output){
         }).then( function(fiddle) {
             output = output || global.cwd+'/'+fiddle_code+'.html'
             console.log('Output file = '+output);
-            fs.writeFile(output, fiddle);
+            writeFile(output, fiddle);
         }).catch( function (error) {
             printError(error);
             process.exit(1);
