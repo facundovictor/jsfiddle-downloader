@@ -40,7 +40,9 @@ To download a single fiddle from its url:
 ```
   jsfiddle-downloader -l <url> [-o <output file>]
   jsfiddle-downloader -l jsfiddle.net/<user>/<fiddle-id>
+  jsfiddle-downloader -l jsfiddle.net/<user>/<fiddle-id>/<version>
   jsfiddle-downloader -l https://jsfiddle.net/<fiddle-id>
+  jsfiddle-downloader -l https://jsfiddle.net/<fiddle-id>/<version>
   jsfiddle-downloader -l https://jsfiddle.net/<user>/<fiddle-id>/show/ -o myfiddle.html
 ```
 
