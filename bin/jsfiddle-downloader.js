@@ -16,7 +16,7 @@ var fs = require("fs");
 //#############################################################################
 
 commander
-    .version('0.0.1')
+    .version('0.1.3')
     .option('-u, --user <user>', 'Save all the users fiddles')
     .option('-l, --link <url>', 'Url of the fiddle to save')
     .option('-o, --output <path>', 'Target path to download the data')
