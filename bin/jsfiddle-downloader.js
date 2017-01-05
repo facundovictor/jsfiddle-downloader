@@ -72,14 +72,18 @@ function isCommand(str){
     return /^show$|^embed$/.test(str);
 }
 
-function getCompletePath(fiddle_code, user){
+function getCompletePath(fiddle_code, fiddle_version, user){
     var complete_path = '/';
     if (user != null){
         complete_path += user +'/';
     }
     if (fiddle_code != null){
-        complete_path += fiddle_code +'/show/light/';
+        complete_path += fiddle_code + '/';
     }
+    if (fiddle_version != null){
+        complete_path += fiddle_version + '/';
+    }
+    complete_path += 'show/light/';
     return complete_path;
 }
 
@@ -134,9 +138,9 @@ function getListOfFiddles(user){
     });
 }
 
-function makeHttpRequest(fiddle_code, user){
+function makeHttpRequest(fiddle_code, fiddle_version, user){
     return new Promise(function (resolve, reject){
-        var complete_path = getCompletePath(fiddle_code, user);
+        var complete_path = getCompletePath(fiddle_code, fiddle_version, user);
         var options = {
             hostname: 'jsfiddle.net',
             port: 443,
@@ -184,7 +188,7 @@ function insertDescription(html_raw, fiddle_data){
                 $('head').append("<!-- Author: "+fiddle_data.author+" -->");
                 $('head').append("<!-- Description: "+fiddle_data.description+" -->");
                 $('head').append("<!-- Framework: "+fiddle_data.framework+" -->");
-                $('head').append("<!-- Version: "+fiddle_data.veresion+" -->");
+                $('head').append("<!-- Version: "+fiddle_data.version+" -->");
                 $('head').append("<!-- Latest_version: "+fiddle_data.latest_version+" -->");
                 $('head').append("<!-- Url: "+fiddle_data.url+" -->");
                 $('head').append("<!-- Created date: "+fiddle_data.created+" -->");
@@ -209,25 +213,47 @@ function loadDataFromUrl(url){
                 if (amount_of_parts === 1){
                     // Only one argument (fiddle_id)
                     data.fiddle_code = path_parts[1];
-                    logIfVerbose(    'Detected single fiddle url..')
+                    logIfVerbose('Detected single fiddle url..')
                 } else {
                     // Could bee user/fiddle_id or fiddle_id/command
                     if (isCommand(path_parts[2])){
                         data.fiddle_code = path_parts[1];
-                        logIfVerbose(    'Detected fiddle and command url..')
+                        logIfVerbose('Detected fiddle and command url..')
                     } else {
-                        // The user may not be present on the url
-                        if (amount_of_parts === 2) {
-                            data.fiddle_code = path_parts[1];
-                            logIfVerbose(    'Detected fiddle url..')
-                        } else {
-                            data.user = path_parts[1];
-                            data.fiddle_code = path_parts[2];
-                            logIfVerbose(    'Detected user and fiddle url..')
+                        switch (amount_of_parts){
+                            case 2 : // The user may not be present on the url
+                                data.fiddle_code = path_parts[1];
+                                logIfVerbose('Detected fiddle url..');
+                                break;
+                            case 3 :
+                                // The second value could be the fiddle version
+                                if (/^\d+$/.test(path_parts[2])) {
+                                    data.fiddle_code = path_parts[1];
+                                    data.fiddle_version = path_parts[2];
+                                    logIfVerbose('Detected fiddle url and version..')
+                                } else {
+                                    // The user and the fiddle url is present
+                                    data.user = path_parts[1];
+                                    data.fiddle_code = path_parts[2];
+                                    logIfVerbose('Detected user and fiddle code..')
+                                }
+                                break;
+                            case 4  :
+                                data.user = path_parts[1];
+                                data.fiddle_code = path_parts[2];
+                                data.fiddle_version = path_parts[3];
+                                logIfVerbose('Detected user, fiddle and version..')
+                                break;
+                            default :
+                                logIfVerbose('Unrecognized url..')
+                                reject(new Error('Invalid url'));
                         }
                     }
                 }
                 process.stdout.write('Detected fiddle code = '+chalk.green(data.fiddle_code));
+                if (data.fiddle_version != null){
+                    process.stdout.write(', version = '+chalk.green(data.fiddle_version));
+                }
                 if (data.user != null){
                     process.stdout.write(', from user = '+chalk.green(data.user));
                 }
@@ -248,7 +274,7 @@ function recoverSingleFiddle(url, output, fiddle_data){
             return loadDataFromUrl(url);
         }).then( function(data){
             output = output || global.cwd+'/'+data.fiddle_code+'.html'
-            return makeHttpRequest(data.fiddle_code, data.user);
+            return makeHttpRequest(data.fiddle_code, data.fiddle_version, data.user);
         }).then( function(fiddle) {
             return insertDescription(fiddle, fiddle_data);
         }).then( function(fiddle) {
