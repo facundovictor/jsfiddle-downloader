@@ -217,53 +217,51 @@ function loadDataFromUrl(url){
             var amount_of_parts = path_parts.length;
 
             if (amount_of_parts > 0){
-                if (amount_of_parts === 1){
-                    // Only one argument (fiddle_id)
-                    data.fiddle_code = path_parts[0];
-                    logIfVerbose('Detected single fiddle url..')
-                } else {
-                    // Could bee user/fiddle_id or fiddle_id/command
-                    if (isCommand(path_parts[1])){
+
+                // The url could end with a command (/show, /embed)
+                if (isCommand(path_parts[amount_of_parts - 1])){
+                    logIfVerbose('Detected url finished in a command..');
+                    amount_of_parts--;
+                }
+
+                switch (amount_of_parts){
+
+                    case 1 :  // The user may not be present on the url
                         data.fiddle_code = path_parts[0];
-                        logIfVerbose('Detected fiddle and command url..')
-                    } else {
-                        switch (amount_of_parts){
-                            case 1 : // The user may not be present on the url
-                                data.fiddle_code = path_parts[0];
-                                logIfVerbose('Detected fiddle url..');
-                                break;
-                            case 2 :
-                                // The second value could be the fiddle version
-                                if (/^\d+$/.test(path_parts[1])) {
-                                    data.fiddle_code = path_parts[0];
-                                    data.fiddle_version = path_parts[1];
-                                    logIfVerbose('Detected fiddle url and version..')
-                                } else {
-                                    // The user and the fiddle url is present
-                                    data.user = path_parts[0];
-                                    data.fiddle_code = path_parts[1];
-                                    logIfVerbose('Detected user and fiddle code..')
-                                }
-                                break;
-                            case 3  :
-                                data.user = path_parts[0];
-                                data.fiddle_code = path_parts[1];
-                                data.fiddle_version = path_parts[2];
-                                logIfVerbose('Detected user, fiddle and version..')
-                                break;
-                            default :
-                                logIfVerbose('Unrecognized url..')
-                                reject(new Error('Invalid url'));
+                        logIfVerbose('Detected fiddle url..');
+                        break;
+                    case 2 :
+                        // The second value could be the fiddle version
+                        if (/^\d+$/.test(path_parts[1])) {
+                            data.fiddle_code = path_parts[0];
+                            data.fiddle_version = path_parts[1];
+                            logIfVerbose('Detected fiddle url and version..')
+                        } else {
+                            // The user and the fiddle url is present
+                            data.user = path_parts[0];
+                            data.fiddle_code = path_parts[1];
+                            logIfVerbose('Detected user and fiddle code..')
                         }
-                    }
+                        break;
+                    case 3  :
+                        data.user = path_parts[0];
+                        data.fiddle_code = path_parts[1];
+                        data.fiddle_version = path_parts[2];
+                        logIfVerbose('Detected user, fiddle and version..')
+                        break;
+                    default :
+                        logIfVerbose('Unrecognized url..')
+                        reject(new Error('Invalid url'));
                 }
+
                 process.stdout.write('Detected fiddle code = '+chalk.green(data.fiddle_code));
-                if (data.fiddle_version != null){
+
+                if (data.fiddle_version != null)
                     process.stdout.write(', version = '+chalk.green(data.fiddle_version));
-                }
-                if (data.user != null){
+
+                if (data.user != null)
                     process.stdout.write(', from user = '+chalk.green(data.user));
-                }
+
                 process.stdout.write('\n');
                 resolve(data);
             }else{
