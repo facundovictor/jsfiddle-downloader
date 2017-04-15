@@ -8,31 +8,31 @@ Download fiddles from jsFiddle.net, just using a NodeJS script and save it as a 
 **Installation**:
 
 ```
-	npm install jsfiddle-downloader -g
+    npm install jsfiddle-downloader -g
 ```
 
 **How to use it**:
 
 ```
-	Usage: node jsfiddle-downloader [options]
+    Usage: node jsfiddle-downloader [options]
 
-	Options:
+    Options:
 
-	-h, --help                    output usage information
-	-V, --version                 output the version number
-	-u, --user <user>             Save all the users fiddles
-	-l, --link <url>              Url of the fiddle to save
-	-o, --output <path>           Target path to download the data
-	-c, --compressed              Compress the spaces of the HTML output
-	-i, --identifier <fiddle_id>  Identifier of the fiddle to save
-	-v, --verbose                 Verbose output
-
+    -h, --help                    output usage information
+    -V, --version                 output the version number
+    -u, --user <user>             Save all the users fiddles
+    -l, --link <url>              Url of the fiddle to save
+    -o, --output <path>           Target path to download the data
+    -c, --compressed              Compress the spaces of the HTML output
+    -i, --identifier <fiddle_id>  Identifier of the fiddle to
+    -f, --force-http              Use http when the URI method is undefined
+    -v, --verbose                 Verbose output
 ```
 
 To download a single fiddle from its id:
 
 ```
-  jsfiddle-downloader -i <fiddle-id> [-o <output file>]
+  jsfiddle-downloader -i <fiddle-id> [-o <output file>] [-f]
 ```
 
 To download a single fiddle from its url:
@@ -58,4 +58,12 @@ It'll download all backups in the currrent directory, the jsFiddles scripts will
   [<output-folder>/]<id-fiddle>.html
 ```
 
+To avoid running a local server for resolving URIs that doesn't have an URI method defined. Use the `-f` parameter:
 
+```
+  jsfiddle-downloader -f -i <fiddle-id>
+  jsfiddle-downloader -f -l <url>
+  jsfiddle-downloader -f -u <user>
+```
+
+This will replace all the `http://` in the href of link tags and in the src of script tags.
