@@ -16,7 +16,7 @@ var fs = require("fs");
 //#############################################################################
 
 commander
-    .version('0.1.4')
+    .version('0.1.5')
     .option('-u, --user <user>', 'Save all the users fiddles')
     .option('-l, --link <url>', 'Url of the fiddle to save')
     .option('-o, --output <path>', 'Target path to download the data')
@@ -244,10 +244,16 @@ function loadDataFromUrl(url){
                         }
                         break;
                     case 3  :
+                        // The user and the fiddle code is present
                         data.user = path_parts[0];
                         data.fiddle_code = path_parts[1];
-                        data.fiddle_version = path_parts[2];
-                        logIfVerbose('Detected user, fiddle and version..')
+                        // The third value could be the fiddle version
+                        if (/^\d+$/.test(path_parts[2])) {
+                            data.fiddle_version = path_parts[2];
+                            logIfVerbose('Detected user, fiddle and version..')
+                        } else {
+                            logIfVerbose('Detected fiddle url and version..')
+                        }
                         break;
                     default :
                         logIfVerbose('Unrecognized url..')
