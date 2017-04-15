@@ -90,9 +90,9 @@ function getCompletePath(fiddle_code, fiddle_version, user){
 
 function forceUseHttpOnUndefinedURIMethod(html_raw) {
     return new Promise(function (resolve) {
+        var $ = cheerio.load(html_raw);
         // If the URI must be forced to use http
         if (commander.forceHttp) {
-            var $ = cheerio.load(html_raw);
 
             // Fore each link that has not method set, use http.
             $('link').each(function (index, elem) {
@@ -342,6 +342,8 @@ function recoverSingleFiddleById(fiddle_code, output){
             return getValidCode(fiddle_code);
         }).then( function(code){
             return makeHttpRequest(code);
+        }).then( function(fiddle) {
+            return forceUseHttpOnUndefinedURIMethod(fiddle);
         }).then( function(fiddle) {
             output = output || global.cwd+'/'+fiddle_code+'.html'
             console.log('Output file = '+output);
