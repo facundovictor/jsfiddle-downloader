@@ -16,12 +16,13 @@ var fs = require("fs");
 //#############################################################################
 
 commander
-    .version('0.1.5')
+    .version('0.1.6')
     .option('-u, --user <user>', 'Save all the users fiddles')
     .option('-l, --link <url>', 'Url of the fiddle to save')
     .option('-o, --output <path>', 'Target path to download the data')
     .option('-c, --compressed', 'Compress the spaces of the HTML output')
     .option('-i, --identifier <fiddle_id>', 'Identifier of the fiddle to save')
+    .option('-f, --force-http', 'Use http when the URI method is undefined')
     .option('-v, --verbose', 'Verbose output')
     .parse(process.argv);
 
@@ -85,6 +86,32 @@ function getCompletePath(fiddle_code, fiddle_version, user){
     }
     complete_path += 'show/light/';
     return complete_path;
+}
+
+function forceUseHttpOnUndefinedURIMethod(html_raw) {
+    return new Promise(function (resolve) {
+        // If the URI must be forced to use http
+        if (commander.forceHttp) {
+            var $ = cheerio.load(html_raw);
+
+            // Fore each link that has not method set, use http.
+            $('link').each(function (index, elem) {
+                var href = $(elem).attr('href');
+                if (href && (href.substr(0,2) === '//')) {
+                    $(elem).attr('href', 'http:' + $(elem).attr('href'))
+                }
+            });
+
+            // Fore each script that has not method set, use http.
+            $('script').each(function (index, elem) {
+                var src = $(elem).attr('src');
+                if (src && (src.substr(0,2) === '//')) {
+                    $(elem).attr('src', 'http:' + $(elem).attr('src'))
+                }
+            });
+        }
+        resolve($.html());
+    });
 }
 
 //#############################################################################
@@ -181,7 +208,7 @@ function insertDescription(html_raw, fiddle_data){
             var config = {
                 normalizeWhitespace: commander.compressed
             };
-            $ = cheerio.load(html_raw, config);
+            var $ = cheerio.load(html_raw, config);
 
             if (fiddle_data){
                 $('head').append("<!-- Title: "+fiddle_data.title+" -->");
@@ -286,6 +313,8 @@ function recoverSingleFiddle(url, output, fiddle_data){
         }).then( function(data){
             output = output || global.cwd+'/'+data.fiddle_code+'.html'
             return makeHttpRequest(data.fiddle_code, data.fiddle_version, data.user);
+        }).then( function(fiddle) {
+            return forceUseHttpOnUndefinedURIMethod(fiddle);
         }).then( function(fiddle) {
             return insertDescription(fiddle, fiddle_data);
         }).then( function(fiddle) {
