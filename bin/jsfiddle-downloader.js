@@ -11,6 +11,7 @@ var https = require('https');
 var Promise = require('bluebird');
 var cheerio = require('cheerio');
 var url_parser = require('url');
+var sanitize = require('sanitize-filename');
 var fs = require("fs");
 
 //#############################################################################
@@ -23,6 +24,7 @@ commander
     .option('-c, --compressed', 'Compress the spaces of the HTML output')
     .option('-i, --identifier <fiddle_id>', 'Identifier of the fiddle to save')
     .option('-f, --force-http', 'Use http when the URI method is undefined')
+    .option('-t, --save-title', 'Use fiddle\'s title to filename. Only with --user')
     .option('-v, --verbose', 'Verbose output')
     .parse(process.argv);
 
@@ -311,7 +313,11 @@ function recoverSingleFiddle(url, output, fiddle_data){
         .then(function(){
             return loadDataFromUrl(url);
         }).then( function(data){
-            output = output || global.cwd+'/'+data.fiddle_code+'.html'
+            if (commander.saveTitle && commander.user){
+                output = output || global.cwd+'/'+sanitize(fiddle_data.title)+'.html';
+            }else{
+                output = output || global.cwd+'/'+data.fiddle_code+'.html';
+            }
             return makeHttpRequest(data.fiddle_code, data.fiddle_version, data.user);
         }).then( function(fiddle) {
             return forceUseHttpOnUndefinedURIMethod(fiddle);
@@ -345,7 +351,7 @@ function recoverSingleFiddleById(fiddle_code, output){
         }).then( function(fiddle) {
             return forceUseHttpOnUndefinedURIMethod(fiddle);
         }).then( function(fiddle) {
-            output = output || global.cwd+'/'+fiddle_code+'.html'
+            output = output || global.cwd+'/'+fiddle_code+'.html';
             console.log('Output file = '+output);
             writeFile(output, fiddle);
         }).catch( function (error) {
