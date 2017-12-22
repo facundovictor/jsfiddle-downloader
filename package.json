@@ -1,13 +1,13 @@
 {
   "name": "jsfiddle-downloader",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "A downloader tool for jsFiddle's",
   "main": "bin/index.js",
   "bin": {
     "jsfiddle-downloader": "bin/jsfiddle-downloader.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -27,9 +27,13 @@
     "url": "https://github.com/facundovictor/jsfiddle-downloader/issues"
   },
   "dependencies": {
-    "commander": "~2.9.0",
-    "chalk": "~1.1.3",
     "bluebird": "~3.3.5",
-    "cheerio": "~0.20.0"
+    "chalk": "~1.1.3",
+    "cheerio": "~0.20.0",
+    "commander": "~2.9.0"
+  },
+  "devDependencies": {
+    "compare-version": "^0.1.2",
+    "fs-extra": "^5.0.0"
   }
 }

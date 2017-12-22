@@ -16,7 +16,7 @@ var fs = require("fs");
 //#############################################################################
 
 commander
-    .version('0.1.6')
+    .version('0.1.7')
     .option('-u, --user <user>', 'Save all the users fiddles')
     .option('-l, --link <url>', 'Url of the fiddle to save')
     .option('-o, --output <path>', 'Target path to download the data')
@@ -24,6 +24,10 @@ commander
     .option('-i, --identifier <fiddle_id>', 'Identifier of the fiddle to save')
     .option('-f, --force-http', 'Use http when the URI method is undefined')
     .option('-v, --verbose', 'Verbose output')
+    .option('-I, --filename-identifier', 'Use fiddle identifier as filename (default)')
+    .option('-T, --filename-title', 'Use fiddle title as filename')
+    .option('-IT, --filename-identifier-title', 'Use fiddle identifier and title as filename')
+    .option('-S, --filename-spaces', 'Keep spaces in filename (default: replace by underscores)')
     .parse(process.argv);
 
 //#############################################################################
@@ -44,6 +48,27 @@ function printError(str){
 }
 
 //#############################################################################
+
+function updateFilename(output, fiddle_code, html_raw) {
+    if (output) {
+        return output; // filename specified by user
+    } else {
+        output = fiddle_code; // default
+        if (commander.filenameTitle) {
+            var $ = cheerio.load(html_raw);
+            var fiddle_title = $('head > title').text();
+            if (commander.filenameSpaces == undefined) {
+                fiddle_title = fiddle_title.replace(/\s+/g, '_');
+            }
+            if (commander.filenameIdentifier) {
+                output += '_'+fiddle_title;
+            } else {
+                output = fiddle_title;
+            }
+        }
+        return global.cwd+'/'+output+'.html'
+    }
+}
 
 function mkdirp (path) {
     Promise.bind(this)
@@ -133,7 +158,7 @@ function getListOfFiddles(user){
             var body = '';
             res.setEncoding('utf8');
             res.on('data', function (chunk) {
-                logIfVerbose('Retreive chunk');
+                logIfVerbose('Retrieve chunk');
                 body += chunk;
             });
             res.on('end', function () {
@@ -182,7 +207,7 @@ function makeHttpRequest(fiddle_code, fiddle_version, user){
             var body = '';
             res.setEncoding('utf8');
             res.on('data', function (chunk) {
-                logIfVerbose('Retreive chunk');
+                logIfVerbose('Retrieve chunk');
                 body += chunk;
             });
             res.on('end', function () {
@@ -307,17 +332,19 @@ function loadDataFromUrl(url){
 }
 
 function recoverSingleFiddle(url, output, fiddle_data){
+    var fiddle_code;
     Promise.bind(this)
         .then(function(){
             return loadDataFromUrl(url);
         }).then( function(data){
-            output = output || global.cwd+'/'+data.fiddle_code+'.html'
+            fiddle_code = data.fiddle_code;
             return makeHttpRequest(data.fiddle_code, data.fiddle_version, data.user);
         }).then( function(fiddle) {
             return forceUseHttpOnUndefinedURIMethod(fiddle);
         }).then( function(fiddle) {
             return insertDescription(fiddle, fiddle_data);
         }).then( function(fiddle) {
+            output = updateFilename(output, fiddle_code, fiddle);
             console.log('Output file = '+output);
             writeFile(output, fiddle);
         }).catch( function (error) {
@@ -345,7 +372,7 @@ function recoverSingleFiddleById(fiddle_code, output){
         }).then( function(fiddle) {
             return forceUseHttpOnUndefinedURIMethod(fiddle);
         }).then( function(fiddle) {
-            output = output || global.cwd+'/'+fiddle_code+'.html'
+            output = updateFilename(output, fiddle_code, fiddle);
             console.log('Output file = '+output);
             writeFile(output, fiddle);
         }).catch( function (error) {
@@ -354,7 +381,7 @@ function recoverSingleFiddleById(fiddle_code, output){
         });
 }
 
-function saveFiddles(list, output){
+function saveFiddles(list){
     global.cwd = process.cwd();
     var amount = list.length;
     var promises = [];
@@ -367,16 +394,16 @@ function saveFiddles(list, output){
     return Promise.all(promises);
 }
 
-function recoverAllFiddles(user, output){
+function recoverAllFiddles(user, output_dir){
     var current_dir = process.cwd();
     Promise.bind(this)
         .then(function(){
-            mkdirp(output);
+            mkdirp(output_dir);
         }).then(function(){
             return getListOfFiddles(user);
         }).then(function(list){
-            process.chdir(output);
-            return saveFiddles(list, output);
+            process.chdir(output_dir);
+            return saveFiddles(list);
         }).then(function(result){
             console.log(chalk.green('Download terminated'));
         }).catch( function (error) {
