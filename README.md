@@ -14,9 +14,9 @@ Download fiddles from jsFiddle.net, just using a NodeJS script and save it as a 
 **How to use it**:
 
 ```
-    Usage: node jsfiddle-downloader [options]
+  Usage: jsfiddle-downloader [options]
 
-    Options:
+  Options:
 
     -h, --help                    output usage information
     -V, --version                 output the version number
@@ -24,8 +24,9 @@ Download fiddles from jsFiddle.net, just using a NodeJS script and save it as a 
     -l, --link <url>              Url of the fiddle to save
     -o, --output <path>           Target path to download the data
     -c, --compressed              Compress the spaces of the HTML output
-    -i, --identifier <fiddle_id>  Identifier of the fiddle to
+    -i, --identifier <fiddle_id>  Identifier of the fiddle to save
     -f, --force-http              Use http when the URI method is undefined
+    -t, --save-title              Use fiddle's title to filename. Only with --user
     -v, --verbose                 Verbose output
 ```
 
@@ -56,6 +57,18 @@ It'll download all backups in the currrent directory, the jsFiddles scripts will
 
 ```
   [<output-folder>/]<id-fiddle>.html
+```
+
+To save the files using the fiddle's title, provide the parameter `-t` (Note: This is only supperted when using `--user`):
+
+```
+  jsfiddle-downloader -t -u <user> [-o <output file>]
+```
+
+It'll download all backups in the currrent directory, the jsFiddles scripts will be named as:
+
+```
+  [<output-folder>/]<title-fiddle>.html
 ```
 
 To avoid running a local server for resolving URIs that doesn't have an URI method defined. Use the `-f` parameter:
