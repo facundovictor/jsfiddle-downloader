@@ -16,5 +16,5 @@ branches:
     - /^feature\/.*$/
 
 script:
-  - [ "$TRAVIS_PULL_REQUEST" != "false" ] && npm install
-  - [ "$TRAVIS_PULL_REQUEST" != "false" ] && npm run test
+  - npm install
+  - npm run test
