@@ -57,7 +57,7 @@ function updateFilename(output, fiddle_code, html_raw) {
         output = fiddle_code; // default
         if (commander.filenameTitle) {
             var $ = cheerio.load(html_raw);
-            var fiddle_title = $('head > title').text();
+            var fiddle_title = sanitize($('head > title').text());
             if (commander.filenameSpaces == undefined) {
                 fiddle_title = fiddle_title.replace(/\s+/g, '_');
             }
