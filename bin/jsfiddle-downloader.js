@@ -11,6 +11,7 @@ var https = require('https');
 var Promise = require('bluebird');
 var cheerio = require('cheerio');
 var url_parser = require('url');
+var sanitize = require('sanitize-filename');
 var fs = require("fs");
 
 //#############################################################################
