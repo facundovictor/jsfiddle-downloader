@@ -1,0 +1,20 @@
+# References:
+#   - https://docs.travis-ci.com/user/customizing-the-build/
+#   - https://docs.travis-ci.com/user/pull-requests/
+
+language: node_js
+
+node_js:
+  - "6.12"
+
+sudo: false
+
+branches:
+  only:
+    - master
+    - develop
+    - /^feature\/.*$/
+
+script:
+  - npm install
+  - npm run test
