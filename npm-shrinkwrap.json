@@ -1,6 +1,6 @@
 {
   "name": "jsfiddle-downloader",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "dependencies": {
     "abab": {
       "version": "1.0.4",
