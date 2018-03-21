@@ -30,13 +30,13 @@
     "bluebird": "~3.3.5",
     "chalk": "~1.1.3",
     "cheerio": "~0.20.0",
-    "commander": "~2.9.0"
+    "commander": "~2.9.0",
+    "sanitize-filename": "^1.6.1"
   },
   "devDependencies": {
     "chai": "^4.1.2",
     "compare-version": "^0.1.2",
     "fs-extra": "^5.0.0",
-    "mocha": "^5.0.4",
-    "sanitize-filename": "^1.6.1"
+    "mocha": "^5.0.4"
   }
 }
