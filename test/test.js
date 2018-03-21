@@ -11,9 +11,6 @@ const childproc = require('child_process');
 const command = function(command, callback) {
     const proc = childproc.exec(command, function(error, stdout, stderr) {
         if (error) {
-            // console.log(error.stack);
-            // console.log('Error Code: '+error.code);
-            // console.log('Reason of error: '+error.signal);
             console.log('ERROR: ' + stderr);
         }
         callback(stdout, stderr);
