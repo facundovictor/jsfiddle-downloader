@@ -101,6 +101,6 @@ In the project directory `jsfiddle-downloader` run
 If you run tests with option `--keep`, the temporary directories containing
 html files downloaded during tests will be preserved for inspection.
 
-# License
+### License
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ffacundovictor%2Fjsfiddle-downloader.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Ffacundovictor%2Fjsfiddle-downloader?ref=badge_large)
