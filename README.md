@@ -1,5 +1,5 @@
 # jsfiddle-downloader
-[![Build Status](https://travis-ci.org/facundovictor/jsfiddle-downloader.svg?branch=master)](https://travis-ci.org/facundovictor/jsfiddle-downloader) [![npm version](https://badge.fury.io/js/jsfiddle-downloader.svg)](https://badge.fury.io/js/jsfiddle-downloader) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/facundovictor/jsfiddle-downloader/master/LICENSE) [![Total Downloads](https://img.shields.io/npm/dt/jsfiddle-downloader.svg)](https://npm-stat.com/charts.html?package=jsfiddle-downloader)
+[![Build Status](https://travis-ci.org/facundovictor/jsfiddle-downloader.svg?branch=master)](https://travis-ci.org/facundovictor/jsfiddle-downloader) [![npm version](https://badge.fury.io/js/jsfiddle-downloader.svg)](https://badge.fury.io/js/jsfiddle-downloader) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/facundovictor/jsfiddle-downloader/master/LICENSE) [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ffacundovictor%2Fjsfiddle-downloader.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Ffacundovictor%2Fjsfiddle-downloader?ref=badge_shield) [![Total Downloads](https://img.shields.io/npm/dt/jsfiddle-downloader.svg)](https://npm-stat.com/charts.html?package=jsfiddle-downloader)
 
 Download fiddles from jsFiddle.net, just using a NodeJS script and save it as a single HTML file.
 
@@ -100,3 +100,7 @@ In the project directory `jsfiddle-downloader` run
 
 If you run tests with option `--keep`, the temporary directories containing
 html files downloaded during tests will be preserved for inspection.
+
+### License
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ffacundovictor%2Fjsfiddle-downloader.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Ffacundovictor%2Fjsfiddle-downloader?ref=badge_large)
