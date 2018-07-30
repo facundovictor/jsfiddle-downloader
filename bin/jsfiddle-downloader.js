@@ -146,7 +146,7 @@ function forceUseHttpOnUndefinedURIMethod(html_raw) {
 function getListOfFiddles(user){
     return new Promise(function (resolve, reject){
         var complete_path = "/api/user/"+user+
-            "/demo/list.json?callback=Api&sort=framework&start=0&limit=50000";
+            "/demo/list.json?sort=framework&start=0&limit=500";
 
         var options = {
             hostname: 'jsfiddle.net',
@@ -164,14 +164,13 @@ function getListOfFiddles(user){
             });
             res.on('end', function () {
                 logIfVerbose('End request');
-                if ((body.length > 3) && (body.substring(0,3) === 'Api')){
-                    var jsonSource = body.substring(4,body.length - 3);
-                    var data = JSON.parse(jsonSource);
-                    if (data.status === 'ok'){
+                if (body.length > 0) {
+                    var data = JSON.parse(body);
+                    if (data && data.length){
                         logIfVerbose('Parsed response..');
-                        resolve(data.list);
+                        resolve(data);
                     } else {
-                        logIfVerbose('JSFiddle API error..',true);
+                        logIfVerbose('JSFiddle API error.. '+data.status,true);
                         reject(data);
                     }
                 } else {
