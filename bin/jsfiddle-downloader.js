@@ -32,6 +32,46 @@ commander
     .parse(process.argv);
 
 //#############################################################################
+// General helpers
+
+function getJSONResponse(url){
+    return new Promise(function (resolve, reject){
+        var request = https.request(new URL(url), function (res){
+            var body = '';
+            res.setEncoding('utf8');
+            res.on('data', function (chunk) {
+                logIfVerbose('Retrieve chunk');
+                body += chunk;
+            });
+            res.on('end', function () {
+                logIfVerbose('End request');
+                if (body.length > 0) {
+                    var data = JSON.parse(body);
+                    if (data && data.length){
+                        logIfVerbose('Parsed response..');
+                        resolve(data);
+                    } else {
+                        logIfVerbose('ERROR: '+data.status,true);
+                        reject(data);
+                    }
+                } else {
+                    logIfVerbose('ERROR: CURL error..',true);
+                    console.log('Please verify the user and try again!');
+                    reject(new Error('CURL error'));
+                }
+            });
+        });
+
+        request.on('error', function(error){
+            logIfVerbose(error, true);
+            reject(error);
+        });
+        request.write('');
+        request.end();
+    });
+}
+
+//#############################################################################
 // Print helpers
 
 function logIfVerbose(str, error){
