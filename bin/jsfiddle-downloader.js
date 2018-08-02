@@ -208,39 +208,18 @@ async function getListOfFiddles(user){
     return list;
 }
 
-function makeHttpRequest(fiddle_code, fiddle_version, user){
-    return new Promise(function (resolve, reject){
-        var complete_path = getCompletePath(fiddle_code, fiddle_version, user);
-        var options = {
-            hostname: 'jsfiddle.net',
-            port: 443,
-            method: 'GET',
-            path: complete_path,
-            headers: {
-                'Referer': 'https://jsfiddle.net' + complete_path
-            }
-        };
-
-        var request = https.request(options, function (res){
-            var body = '';
-            res.setEncoding('utf8');
-            res.on('data', function (chunk) {
-                logIfVerbose('Retrieve chunk');
-                body += chunk;
-            });
-            res.on('end', function () {
-                logIfVerbose('End request');
-                resolve(body);
-            });
-        });
-
-        request.on('error', function(error){
-            logIfVerbose(error, true);
-            reject(error);
-        });
-        request.write('');
-        request.end();
-    });
+async function getFiddle(fiddle_code, fiddle_version, user){
+    let complete_path = getCompletePath(fiddle_code, fiddle_version, user);
+    let options = {
+        hostname: 'jsfiddle.net',
+        port: 443,
+        method: 'GET',
+        path: complete_path,
+        headers: {
+            'Referer': 'https://jsfiddle.net' + complete_path
+        }
+    };
+    return await fetchResponse(options);
 }
 
 //#############################################################################
@@ -356,7 +335,7 @@ function recoverSingleFiddle(url, output, fiddle_data){
             return loadDataFromUrl(url);
         }).then( function(data){
             fiddle_code = data.fiddle_code;
-            return makeHttpRequest(data.fiddle_code, data.fiddle_version, data.user);
+            return getFiddle(data.fiddle_code, data.fiddle_version, data.user);
         }).then( function(fiddle) {
             return forceUseHttpOnUndefinedURIMethod(fiddle);
         }).then( function(fiddle) {
@@ -386,7 +365,7 @@ function recoverSingleFiddleById(fiddle_code, output){
         .then(function(){
             return getValidCode(fiddle_code);
         }).then( function(code){
-            return makeHttpRequest(code);
+            return getFiddle(code);
         }).then( function(fiddle) {
             return forceUseHttpOnUndefinedURIMethod(fiddle);
         }).then( function(fiddle) {
