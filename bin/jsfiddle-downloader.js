@@ -34,9 +34,9 @@ commander
 //#############################################################################
 // General helpers
 
-function getJSONResponse(url){
+function fetchResponse(options) {
     return new Promise(function (resolve, reject){
-        var request = https.request(new URL(url), function (res){
+        var request = https.request(options, function (res){
             var body = '';
             res.setEncoding('utf8');
             res.on('data', function (chunk) {
@@ -46,14 +46,8 @@ function getJSONResponse(url){
             res.on('end', function () {
                 logIfVerbose('End request');
                 if (body.length > 0) {
-                    var data = JSON.parse(body);
-                    if (data && data.length){
-                        logIfVerbose('Parsed response..');
-                        resolve(data);
-                    } else {
-                        logIfVerbose('ERROR: '+data.status,true);
-                        reject(data);
-                    }
+                    logIfVerbose('Received response..');
+                    resolve(body);
                 } else {
                     logIfVerbose('ERROR: CURL error..',true);
                     console.log('Please verify the user and try again!');
@@ -69,6 +63,10 @@ function getJSONResponse(url){
         request.write('');
         request.end();
     });
+}
+
+async function fetchJSON(url) {
+    return JSON.parse(await fetchResponse(new URL(url)));
 }
 
 //#############################################################################
