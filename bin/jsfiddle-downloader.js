@@ -211,14 +211,15 @@ async function getListOfFiddles(user){
 async function getFiddle(fiddle_code, fiddle_version, user){
     let complete_path = getCompletePath(fiddle_code, fiddle_version, user);
     let options = {
-        hostname: 'jsfiddle.net',
+        hostname: 'fiddle.jshell.net',
         port: 443,
         method: 'GET',
         path: complete_path,
         headers: {
-            'Referer': 'https://jsfiddle.net' + complete_path
+            'Referer': `https://fiddle.jshell.net${complete_path}`
         }
     };
+    logIfVerbose(`Get path: ${complete_path}`); 
     return await fetchResponse(options);
 }
 
