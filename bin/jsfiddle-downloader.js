@@ -181,51 +181,31 @@ function forceUseHttpOnUndefinedURIMethod(html_raw) {
 //#############################################################################
 // HTTPS Requests
 
-function getListOfFiddles(user){
-    return new Promise(function (resolve, reject){
-        var complete_path = "/api/user/"+user+
-            "/demo/list.json?sort=framework&start=0&limit=500";
+async function getNextSubListOfFiddles(user, start = 0){
+    const path = `/api/user/${user}/demo/list.json?`+
+                `sort=framework&start=${start}&limit=100`;
+    logIfVerbose(`Downloading chunk [${start},${start + 100}]`);
+    return await fetchJSON(`https://jsfiddle.net/${path}`);
+}
 
-        var options = {
-            hostname: 'jsfiddle.net',
-            port: 443,
-            method: 'GET',
-            path: complete_path
-        };
+async function getListOfFiddles(user){
+    let start = 0;
+    let list = [];
+    let sublist;
+    let keepGettingFiddles = true;
 
-        var request = https.request(options, function (res){
-            var body = '';
-            res.setEncoding('utf8');
-            res.on('data', function (chunk) {
-                logIfVerbose('Retrieve chunk');
-                body += chunk;
-            });
-            res.on('end', function () {
-                logIfVerbose('End request');
-                if (body.length > 0) {
-                    var data = JSON.parse(body);
-                    if (data && data.length){
-                        logIfVerbose('Parsed response..');
-                        resolve(data);
-                    } else {
-                        logIfVerbose('JSFiddle API error.. '+data.status,true);
-                        reject(data);
-                    }
-                } else {
-                    logIfVerbose('JSFiddle API error..',true);
-                    console.log('Please verify the user and try again!');
-                    reject(new Error('JSFiddle API error..'));
-                }
-            });
-        });
-
-        request.on('error', function(error){
-            logIfVerbose(error, true);
-            reject(error);
-        });
-        request.write('');
-        request.end();
-    });
+    while (keepGettingFiddles) {
+        sublist = await getNextSubListOfFiddles(user, start);
+        if (sublist && sublist.length) {
+            logIfVerbose(`Downloaded chunk of ${sublist.length}`);
+            list = list.concat(sublist);
+            start += sublist.length;
+        }
+        if (!sublist || sublist.length < 100) {
+            keepGettingFiddles=false;
+        }
+    }
+    return list;
 }
 
 function makeHttpRequest(fiddle_code, fiddle_version, user){
