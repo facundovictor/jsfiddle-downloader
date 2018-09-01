@@ -18,7 +18,7 @@ const URL = require('url').URL;
 //#############################################################################
 
 commander
-    .version('0.1.7')
+    .version('0.2.0')
     .option('-u, --user <user>', 'Save all the users fiddles')
     .option('-l, --link <url>', 'Url of the fiddle to save')
     .option('-o, --output <path>', 'Target path to download the data')
