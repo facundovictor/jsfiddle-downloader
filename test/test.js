@@ -30,7 +30,7 @@ const keep_results = process.argv.includes('--keep'); // keep resulting director
 
 describe('jsfiddle-downloader v0.1.6 and above has features as described in README', function() {
 
-    this.timeout(10000);
+    this.timeout(60 * 1000);
 
     const tempdir = 'temp_test_results.0.1.6';
 
@@ -151,7 +151,7 @@ describe('jsfiddle-downloader v0.1.6 and above has features as described in READ
 
 describe('jsfiddle-downloader v0.1.7 has additional features as described in README', function() {
 
-    this.timeout(10000);
+    this.timeout(60 * 1000);
 
     const tempdir = 'temp_test_results.0.1.7';
 
