@@ -155,7 +155,7 @@ describe('jsfiddle-downloader v0.1.7 has additional features as described in REA
 
     const tempdir = 'temp_test_results.0.1.7';
 
-    before(function(done) { // check preconditions
+    beforeEach(function(done) { // check preconditions
         const __this = this;
         command(`${path_to_jsfiddle_downloader} --version`, function(stdout, stderr) {
           console.log(`  version detected ${stdout}`);
@@ -172,7 +172,7 @@ describe('jsfiddle-downloader v0.1.7 has additional features as described in REA
         })
     });
 
-    after(function() {
+    afterEach(function() {
         process.chdir('..');
         if (!keep_results) {
             fse.removeSync(tempdir);
