@@ -5,14 +5,15 @@
 // @description: Script that allows to do a backup of your jsFiddles to disk.
 //#############################################################################
 
-var commander = require('commander');
-var chalk = require('chalk');
-var https = require('https');
-var Promise = require('bluebird');
-var cheerio = require('cheerio');
-var url_parser = require('url');
-var sanitize = require('sanitize-filename');
-var fs = require("fs");
+const commander = require('commander');
+const chalk = require('chalk');
+const https = require('https');
+const Promise = require('bluebird');
+const cheerio = require('cheerio');
+const url_parser = require('url');
+const sanitize = require('sanitize-filename');
+const fs = require("fs");
+const URL = require('url').URL;
 
 //#############################################################################
 
