@@ -30,7 +30,7 @@ const keep_results = process.argv.includes('--keep'); // keep resulting director
 
 describe('jsfiddle-downloader v0.1.6 and above has features as described in README', function() {
 
-    this.timeout(10000);
+    this.timeout(60 * 1000);
 
     const tempdir = 'temp_test_results.0.1.6';
 
@@ -151,11 +151,11 @@ describe('jsfiddle-downloader v0.1.6 and above has features as described in READ
 
 describe('jsfiddle-downloader v0.1.7 has additional features as described in README', function() {
 
-    this.timeout(10000);
+    this.timeout(60 * 1000);
 
     const tempdir = 'temp_test_results.0.1.7';
 
-    before(function(done) { // check preconditions
+    beforeEach(function(done) { // check preconditions
         const __this = this;
         command(`${path_to_jsfiddle_downloader} --version`, function(stdout, stderr) {
           console.log(`  version detected ${stdout}`);
@@ -172,7 +172,7 @@ describe('jsfiddle-downloader v0.1.7 has additional features as described in REA
         })
     });
 
-    after(function() {
+    afterEach(function() {
         process.chdir('..');
         if (!keep_results) {
             fse.removeSync(tempdir);
@@ -190,7 +190,7 @@ describe('jsfiddle-downloader v0.1.7 has additional features as described in REA
     it('0.1.7-2 Download a single fiddle from its id, options -fi -T:', function(done) {
       command(`${path_to_jsfiddle_downloader} -fi x41r981y -T`, function(stdout, stderr) {
           expect(stderr).to.equal('');
-          expect(fse.accessSync(`Cubo_girando_en_3D_by_FacuCode.html`)).to.not.throw; // default filename
+          expect(fse.accessSync(`Cubo_girando_en_3D.html`)).to.not.throw; // default filename
           done();
       })
     });
@@ -198,7 +198,7 @@ describe('jsfiddle-downloader v0.1.7 has additional features as described in REA
     it('0.1.7-3 Download a single fiddle from its id, options -fi -TS:', function(done) {
       command(`${path_to_jsfiddle_downloader} -fi s79qr06L -TS`, function(stdout, stderr) {
           expect(stderr).to.equal('');
-          expect(fse.accessSync(`JavaScript scroll down. by FacuCode.html`)).to.not.throw; // default filename
+          expect(fse.accessSync(`JavaScript scroll down.html`)).to.not.throw; // default filename
           done();
       })
     });
@@ -206,7 +206,7 @@ describe('jsfiddle-downloader v0.1.7 has additional features as described in REA
     it('0.1.7-4 Download a single fiddle from its id, options -fi -IT:', function(done) {
       command(`${path_to_jsfiddle_downloader} -fi rsno3fn4 -IT`, function(stdout, stderr) {
           expect(stderr).to.equal('');
-          expect(fse.accessSync(`rsno3fn4_planos_paralelos_girando_en_3D_by_FacuCode.html`)).to.not.throw; // generated filename
+          expect(fse.accessSync(`rsno3fn4_planos_paralelos_girando_en_3D.html`)).to.not.throw; // generated filename
           done();
       })
     });
@@ -222,7 +222,7 @@ describe('jsfiddle-downloader v0.1.7 has additional features as described in REA
     it('0.1.7-6 Download a single fiddle from its url, options -fl -T:', function(done) {
       command(`${path_to_jsfiddle_downloader} -fl jsfiddle.net/FacuCode/pwon7bL8/ -T`, function(stdout, stderr) {
           expect(stderr).to.equal('');
-          expect(fse.accessSync(`Ejemplo_de_contadores_by_FacuCode.html`)).to.not.throw; // default filename
+          expect(fse.accessSync(`Ejemplo_de_contadores.html`)).to.not.throw; // default filename
           done();
       })
     });
@@ -230,7 +230,7 @@ describe('jsfiddle-downloader v0.1.7 has additional features as described in REA
     it('0.1.7-7 Download a single fiddle from its url, options -fl -TS:', function(done) {
       command(`${path_to_jsfiddle_downloader} -fl jsfiddle.net/FacuCode/q5xde/ -TS`, function(stdout, stderr) {
           expect(stderr).to.equal('');
-          expect(fse.accessSync(`Ovalo con CSS puro by FacuCode.html`)).to.not.throw; // default filename
+          expect(fse.accessSync(`Ovalo con CSS puro.html`)).to.not.throw; // default filename
           done();
       })
     });
@@ -238,7 +238,7 @@ describe('jsfiddle-downloader v0.1.7 has additional features as described in REA
     it('0.1.7-8 Download a single fiddle from its url, options -fl -IT:', function(done) {
       command(`${path_to_jsfiddle_downloader} -fl jsfiddle.net/FacuCode/s9f4zwas/ -IT`, function(stdout, stderr) {
           expect(stderr).to.equal('');
-          expect(fse.accessSync(`s9f4zwas_CSS_2D_Transforms_CON_ANTIALIASING!_by_FacuCode.html`)).to.not.throw; // default filename
+          expect(fse.accessSync(`s9f4zwas_CSS_2D_Transforms_CON_ANTIALIASING!.html`)).to.not.throw; // default filename
           done();
       })
     });
@@ -255,8 +255,8 @@ describe('jsfiddle-downloader v0.1.7 has additional features as described in REA
     it('0.1.7-10 Download all scripts of a user from jsFiddle.net, options -fu -T:', function(done) {
       command(`${path_to_jsfiddle_downloader} -fu FacuCode -T`, function(stdout, stderr) {
           expect(stderr).to.equal('');
-          expect(fse.readdirSync('output_dir').length).to.be.at.least(123+121); // default dir
-          expect(fse.accessSync(`output_dir/Efectos_de_imagenes_con_CSS_by_FacuCode.html`)).to.not.throw;
+          expect(fse.readdirSync('output_dir').length).to.be.at.least(121); // default dir
+          expect(fse.accessSync(`output_dir/Efectos_de_imagenes_con_CSS.html`)).to.not.throw;
           done();
       })
     });
@@ -264,8 +264,8 @@ describe('jsfiddle-downloader v0.1.7 has additional features as described in REA
     it('0.1.7-11 Download all scripts of a user from jsFiddle.net, options -fu -TS:', function(done) {
       command(`${path_to_jsfiddle_downloader} -fu FacuCode -TS`, function(stdout, stderr) {
           expect(stderr).to.equal('');
-          expect(fse.readdirSync('output_dir').length).to.be.at.least(123+121+121); // default dir
-          expect(fse.accessSync(`output_dir/Efectos de imagenes con CSS by FacuCode.html`)).to.not.throw;
+          expect(fse.readdirSync('output_dir').length).to.be.at.least(121); // default dir
+          expect(fse.accessSync(`output_dir/Efectos de imagenes con CSS.html`)).to.not.throw;
           done();
       })
     });
@@ -273,8 +273,8 @@ describe('jsfiddle-downloader v0.1.7 has additional features as described in REA
     it('0.1.7-12 Download all scripts of a user from jsFiddle.net, options -fu -IT:', function(done) {
       command(`${path_to_jsfiddle_downloader} -fu FacuCode -IT`, function(stdout, stderr) {
           expect(stderr).to.equal('');
-          expect(fse.readdirSync('output_dir').length).to.be.at.least(123+121+121+123); // default dir
-          expect(fse.accessSync(`output_dir/kdqyK_Efectos_de_imagenes_con_CSS_by_FacuCode.html`)).to.not.throw;
+          expect(fse.readdirSync('output_dir').length).to.be.at.least(123); // default dir
+          expect(fse.accessSync(`output_dir/kdqyK_Efectos_de_imagenes_con_CSS.html`)).to.not.throw;
           done();
       })
     });

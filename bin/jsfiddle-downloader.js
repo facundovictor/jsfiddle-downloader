@@ -5,19 +5,20 @@
 // @description: Script that allows to do a backup of your jsFiddles to disk.
 //#############################################################################
 
-var commander = require('commander');
-var chalk = require('chalk');
-var https = require('https');
-var Promise = require('bluebird');
-var cheerio = require('cheerio');
-var url_parser = require('url');
-var sanitize = require('sanitize-filename');
-var fs = require("fs");
+const commander = require('commander');
+const chalk = require('chalk');
+const https = require('https');
+const Promise = require('bluebird');
+const cheerio = require('cheerio');
+const url_parser = require('url');
+const sanitize = require('sanitize-filename');
+const fs = require("fs");
+const URL = require('url').URL;
 
 //#############################################################################
 
 commander
-    .version('0.1.7')
+    .version('0.2.0')
     .option('-u, --user <user>', 'Save all the users fiddles')
     .option('-l, --link <url>', 'Url of the fiddle to save')
     .option('-o, --output <path>', 'Target path to download the data')
@@ -30,6 +31,44 @@ commander
     .option('-IT, --filename-identifier-title', 'Use fiddle identifier and title as filename')
     .option('-S, --filename-spaces', 'Keep spaces in filename (default: replace by underscores)')
     .parse(process.argv);
+
+//#############################################################################
+// General helpers
+
+function fetchResponse(options) {
+    return new Promise(function (resolve, reject){
+        var request = https.request(options, function (res){
+            var body = '';
+            res.setEncoding('utf8');
+            res.on('data', function (chunk) {
+                logIfVerbose('Retrieve chunk');
+                body += chunk;
+            });
+            res.on('end', function () {
+                logIfVerbose('End request');
+                if (body.length > 0) {
+                    logIfVerbose('Received response..');
+                    resolve(body);
+                } else {
+                    logIfVerbose('ERROR: CURL error..',true);
+                    console.log('Please verify the user and try again!');
+                    reject(new Error('CURL error'));
+                }
+            });
+        });
+
+        request.on('error', function(error){
+            logIfVerbose(error, true);
+            reject(error);
+        });
+        request.write('');
+        request.end();
+    });
+}
+
+async function fetchJSON(url) {
+    return JSON.parse(await fetchResponse(new URL(url)));
+}
 
 //#############################################################################
 // Print helpers
@@ -143,87 +182,46 @@ function forceUseHttpOnUndefinedURIMethod(html_raw) {
 //#############################################################################
 // HTTPS Requests
 
-function getListOfFiddles(user){
-    return new Promise(function (resolve, reject){
-        var complete_path = "/api/user/"+user+
-            "/demo/list.json?callback=Api&sort=framework&start=0&limit=50000";
-
-        var options = {
-            hostname: 'jsfiddle.net',
-            port: 443,
-            method: 'GET',
-            path: complete_path
-        };
-
-        var request = https.request(options, function (res){
-            var body = '';
-            res.setEncoding('utf8');
-            res.on('data', function (chunk) {
-                logIfVerbose('Retrieve chunk');
-                body += chunk;
-            });
-            res.on('end', function () {
-                logIfVerbose('End request');
-                if ((body.length > 3) && (body.substring(0,3) === 'Api')){
-                    var jsonSource = body.substring(4,body.length - 3);
-                    var data = JSON.parse(jsonSource);
-                    if (data.status === 'ok'){
-                        logIfVerbose('Parsed response..');
-                        resolve(data.list);
-                    } else {
-                        logIfVerbose('JSFiddle API error..',true);
-                        reject(data);
-                    }
-                } else {
-                    logIfVerbose('JSFiddle API error..',true);
-                    console.log('Please verify the user and try again!');
-                    reject(new Error('JSFiddle API error..'));
-                }
-            });
-        });
-
-        request.on('error', function(error){
-            logIfVerbose(error, true);
-            reject(error);
-        });
-        request.write('');
-        request.end();
-    });
+async function getNextSubListOfFiddles(user, start = 0){
+    const path = `/api/user/${user}/demo/list.json?`+
+                `sort=framework&start=${start}&limit=100`;
+    logIfVerbose(`Downloading chunk [${start},${start + 100}]`);
+    return await fetchJSON(`https://jsfiddle.net/${path}`);
 }
 
-function makeHttpRequest(fiddle_code, fiddle_version, user){
-    return new Promise(function (resolve, reject){
-        var complete_path = getCompletePath(fiddle_code, fiddle_version, user);
-        var options = {
-            hostname: 'jsfiddle.net',
-            port: 443,
-            method: 'GET',
-            path: complete_path,
-            headers: {
-                'Referer': 'https://jsfiddle.net' + complete_path
-            }
-        };
+async function getListOfFiddles(user){
+    let start = 0;
+    let list = [];
+    let sublist;
+    let keepGettingFiddles = true;
 
-        var request = https.request(options, function (res){
-            var body = '';
-            res.setEncoding('utf8');
-            res.on('data', function (chunk) {
-                logIfVerbose('Retrieve chunk');
-                body += chunk;
-            });
-            res.on('end', function () {
-                logIfVerbose('End request');
-                resolve(body);
-            });
-        });
+    while (keepGettingFiddles) {
+        sublist = await getNextSubListOfFiddles(user, start);
+        if (sublist && sublist.length) {
+            logIfVerbose(`Downloaded chunk of ${sublist.length}`);
+            list = list.concat(sublist);
+            start += sublist.length;
+        }
+        if (!sublist || sublist.length < 100) {
+            keepGettingFiddles=false;
+        }
+    }
+    return list;
+}
 
-        request.on('error', function(error){
-            logIfVerbose(error, true);
-            reject(error);
-        });
-        request.write('');
-        request.end();
-    });
+async function getFiddle(fiddle_code, fiddle_version, user){
+    let complete_path = getCompletePath(fiddle_code, fiddle_version, user);
+    let options = {
+        hostname: 'fiddle.jshell.net',
+        port: 443,
+        method: 'GET',
+        path: complete_path,
+        headers: {
+            'Referer': `https://fiddle.jshell.net${complete_path}`
+        }
+    };
+    logIfVerbose(`Get path: ${complete_path}`); 
+    return await fetchResponse(options);
 }
 
 //#############################################################################
@@ -339,7 +337,7 @@ function recoverSingleFiddle(url, output, fiddle_data){
             return loadDataFromUrl(url);
         }).then( function(data){
             fiddle_code = data.fiddle_code;
-            return makeHttpRequest(data.fiddle_code, data.fiddle_version, data.user);
+            return getFiddle(data.fiddle_code, data.fiddle_version, data.user);
         }).then( function(fiddle) {
             return forceUseHttpOnUndefinedURIMethod(fiddle);
         }).then( function(fiddle) {
@@ -369,7 +367,7 @@ function recoverSingleFiddleById(fiddle_code, output){
         .then(function(){
             return getValidCode(fiddle_code);
         }).then( function(code){
-            return makeHttpRequest(code);
+            return getFiddle(code);
         }).then( function(fiddle) {
             return forceUseHttpOnUndefinedURIMethod(fiddle);
         }).then( function(fiddle) {
