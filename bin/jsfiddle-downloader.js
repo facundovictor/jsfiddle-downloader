@@ -14,11 +14,12 @@ const url_parser = require('url');
 const sanitize = require('sanitize-filename');
 const fs = require("fs");
 const URL = require('url').URL;
+const pkginfo = require('pkginfo')(module);
 
 //#############################################################################
 
 commander
-    .version('0.2.0')
+    .version(module.exports.version)
     .option('-u, --user <user>', 'Save all the users fiddles')
     .option('-l, --link <url>', 'Url of the fiddle to save')
     .option('-o, --output <path>', 'Target path to download the data')
